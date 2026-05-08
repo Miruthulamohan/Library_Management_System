@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Events — Library LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div><a class="nav-item" href="/student/dashboard.html">Dashboard</a><a class="nav-item" href="/student/books.html">Browse Books</a><a class="nav-item" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div><a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item active" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div><a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-left"><span class="topbar-title">Library Events</span></div></header>
+    <main class="content">
+      <div id="events-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+    </main>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+
+  // TIME from MySQL arrives as "HH:MM:SS" (or sometimes "HH:MM").
+  function formatTimeOfDay(t) {
+    if (t === null || t === undefined) return '—';
+    const s = String(t).trim();
+    if (!s) return '—';
+    const m = s.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (!m) return s;
+    let hh = Number(m[1]);
+    const mm = Number(m[2]);
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    hh = hh % 12;
+    if (hh === 0) hh = 12;
+    return `${hh}:${String(mm).padStart(2,'0')} ${ampm}`;
+  }
+
+  async function load() {
+    const r = await apiFetch('/events/');
+    const grid = document.getElementById('events-grid');
+    if (!r?.ok || !r.data.length) { grid.innerHTML='<div class="empty-state"><p>No upcoming events</p></div>'; return; }
+    grid.innerHTML = r.data.map(e => `
+      <div class="card">
+        <div class="card-body">
+          <div style="font-weight:700;font-size:15px;margin-bottom:6px">${e.title}</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:12px">${e.description||''}</div>
+          <div style="font-size:12px;display:flex;flex-direction:column;gap:4px">
+            <span>Date: <strong>${formatDate(e.event_date)}</strong></span>
+            <span>Time: <strong>${formatTimeOfDay(e.event_time)}</strong></span>
+            <span>Venue: <strong>${e.venue||'—'}</strong></span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  load();
+</script>
+</body>
+</html>

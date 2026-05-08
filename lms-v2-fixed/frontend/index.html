@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Library Management System</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+</head>
+<body>
+<div class="welcome-wrap">
+  <div class="welcome-box">
+    <div style="width:64px;height:64px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:30px;">
+      LMS
+    </div>
+    <h1>Library Management System</h1>
+    <p>Manage books, members, events and more</p>
+
+    <div class="welcome-btns">
+      <button class="btn-white" onclick="location.href='/login.html'">Login / Register</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- PWA install bar -->
+<div id="install-bar">
+  <span>Install Library App on your phone</span>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>
+    <button class="btn btn-ghost btn-sm" style="color:#fff" onclick="this.closest('#install-bar').classList.remove('show')">Later</button>
+  </div>
+</div>
+
+<script src="/js/script.js"></script>
+<script>
+  // Redirect if already logged in
+  const u = getUser();
+  if (getToken() && u) {
+    location.href = u.role === 'admin' ? '/admin/dashboard.html' : '/student/dashboard.html';
+  }
+
+</script>
+</body>
+</html>

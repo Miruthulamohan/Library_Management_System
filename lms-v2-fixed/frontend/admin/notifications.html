@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Notifications — Admin LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Admin Panel</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div><a class="nav-item" href="/admin/dashboard.html">Dashboard</a><a class="nav-item" href="/admin/books.html">Books</a>
+      <div class="nav-section">Issue / Return</div><a class="nav-item" href="/admin/issue.html">Issue Book</a><a class="nav-item" href="/admin/return.html">Return Book</a><a class="nav-item" href="/admin/overdue.html">Overdue</a>
+      <div class="nav-section">Students</div><a class="nav-item" href="/admin/students.html">Students</a><a class="nav-item" href="/admin/who-is-in.html">Who Is In</a>
+      <a class="nav-item" href="/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
+      <div class="nav-section">Membership</div><a class="nav-item" href="/admin/members.html">Members</a>
+      <div class="nav-section">Communication</div><a class="nav-item" href="/admin/events.html">Events</a>
+      <a class="nav-item active" href="/admin/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <div class="nav-section">Settings</div><a class="nav-item" href="/admin/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><span class="topbar-title">Notifications</span></div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="markAllRead()">Mark All Read</button>
+        <button class="btn btn-primary" onclick="openModal('send-modal')">Send Notification</button>
+      </div>
+    </header>
+    <main class="content">
+      <div class="card">
+        <div id="notif-list"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<div class="modal-overlay" id="send-modal">
+  <div class="modal">
+    <div class="modal-header">Send Notification<button class="close-btn" onclick="closeModal('send-modal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Send To</label>
+        <select id="f-student"><option value="">All Students (Broadcast)</option></select>
+      </div>
+      <div class="form-group"><label>Title *</label><input type="text" id="f-title" placeholder="Notification title"></div>
+      <div class="form-group"><label>Message</label><textarea id="f-msg" rows="3" placeholder="Message body..."></textarea></div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="success">Success</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('send-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendNotif()">Send</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="notif-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span id="notif-modal-title">Notification</span>
+      <button class="close-btn" onclick="closeModal('notif-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="notif-modal-meta" style="font-size:12px;color:#64748b;margin-bottom:10px"></div>
+      <div id="notif-modal-body" style="white-space:pre-wrap;line-height:1.6;color:#334155"></div>
+    </div>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('admin')) throw '';
+  let notificationsData = [];
+  async function load() {
+    const r = await apiFetch('/notifications/');
+    const el = document.getElementById('notif-list');
+    if (!r?.ok || !r.data.length) { el.innerHTML='<div class="empty-state"><p>No notifications</p></div>'; return; }
+    notificationsData = r.data;
+    el.innerHTML = notificationsData.map(n => `
+      <div class="notif-item ${n.is_read?'':'unread'}" onclick="openNotification(${n.id},this)">
+        <div class="notif-title">${n.title}</div>
+        <div class="notif-msg">${n.message||''}</div>
+        <div class="notif-time">${timeAgo(n.created_at)}</div>
+      </div>`).join('');
+  }
+  async function openNotification(id, el) {
+    const n = notificationsData.find(item => item.id === id);
+    if (!n) return;
+    document.getElementById('notif-modal-title').textContent = n.title || 'Notification';
+    document.getElementById('notif-modal-meta').textContent = `${(n.type || 'info').toUpperCase()} • ${formatDate(n.created_at)} ${formatTime(n.created_at)}`;
+    document.getElementById('notif-modal-body').textContent = n.message || 'No additional details.';
+    openModal('notif-modal');
+    await markRead(id, el);
+  }
+  async function markRead(id, el) {
+    el.classList.remove('unread');
+    await apiFetch(`/notifications/read/${id}`, { method:'PUT' });
+    loadNotifBadge();
+  }
+  async function markAllRead() {
+    await apiFetch('/notifications/read-all', { method:'PUT' });
+    load(); loadNotifBadge();
+  }
+  async function loadStudents() {
+    const r = await apiFetch('/auth/students');
+    if (!r?.ok) return;
+    const sel = document.getElementById('f-student');
+    r.data.forEach(s => sel.innerHTML += `<option value="${s.id}">${s.name} (${s.member_id})</option>`);
+  }
+  async function sendNotif() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required','warning'); return; }
+    const uid = document.getElementById('f-student').value || null;
+    const r = await apiFetch('/notifications/send', { method:'POST', body:JSON.stringify({
+      user_id: uid, title, message:document.getElementById('f-msg').value, type:document.getElementById('f-type').value
+    })});
+    if (r?.ok) { showToast('Notification sent!','success'); closeModal('send-modal'); load(); }
+    else showToast('Error sending','error');
+  }
+  load(); loadStudents();
+</script>
+</body>
+</html>

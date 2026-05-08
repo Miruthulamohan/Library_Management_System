@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard — Library LMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">LMS</div>
+      <div><div class="brand-name">Library LMS</div><div class="brand-sub">Admin Panel</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item active" href="/admin/dashboard.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard</a>
+      <a class="nav-item" href="/admin/books.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> Books</a>
+      <div class="nav-section">Issue / Return</div>
+      <a class="nav-item" href="/admin/issue.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Issue Book</a>
+      <a class="nav-item" href="/admin/return.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Return Book</a>
+      <a class="nav-item" href="/admin/overdue.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Overdue</a>
+      <div class="nav-section">Students</div>
+      <a class="nav-item" href="/admin/students.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg> Students</a>
+      <a class="nav-item" href="/admin/who-is-in.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Who Is In</a>
+      <a class="nav-item" href="/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
+      <div class="nav-section">Membership</div>
+      <a class="nav-item" href="/admin/members.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg> Members</a>
+      <div class="nav-section">Communication</div>
+      <a class="nav-item" href="/admin/events.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Events</a>
+      <a class="nav-item" href="/admin/notifications.html">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+      </a>
+      <div class="nav-section">Settings</div>
+      <a class="nav-item" href="/admin/profile.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item" onclick="logout()"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none" id="menu-btn">&#9776;</button>
+        <span class="topbar-title">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-user">Welcome, <strong id="admin-name"></strong></span>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Stats -->
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Books</div><div class="stat-val" id="s-books">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#4f46e5;width:60%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Available</div><div class="stat-val" id="s-avail">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#10b981;width:80%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-val" id="s-students">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#3b82f6;width:50%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Issued Now</div><div class="stat-val" id="s-issued">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#f59e0b;width:40%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" id="s-overdue" style="color:#ef4444">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#ef4444;width:20%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Fines Collected</div><div class="stat-val" id="s-fines">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#10b981;width:45%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Active Members</div><div class="stat-val" id="s-members">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#7c3aed;width:35%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Pending Approvals</div><div class="stat-val" id="s-pending" style="color:#f59e0b">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#f59e0b;width:25%"></div></div></div>
+        <div class="stat-card"><div class="stat-label">Visitors Now</div><div class="stat-val" id="s-visitors">—</div><div class="stat-bar"><div class="stat-bar-fill" style="background:#3b82f6;width:30%"></div></div></div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;flex-wrap:wrap">
+        <!-- Recent issued -->
+        <div class="card" style="grid-column:span 2">
+          <div class="card-header">
+            Recently Issued Books
+            <a href="/admin/issue.html" class="btn btn-primary btn-sm">Issue New</a>
+          </div>
+          <div class="card-body table-wrap" style="padding:0">
+            <table>
+              <thead><tr><th>Book</th><th>Student</th><th>Issued</th><th>Due Date</th><th>Status</th></tr></thead>
+              <tbody id="recent-tbody"><tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Overdue alert -->
+        <div class="card">
+          <div class="card-header">Overdue Books <a href="/admin/overdue.html" class="btn btn-danger btn-sm">View All</a></div>
+          <div class="card-body" id="overdue-list" style="padding:0"></div>
+        </div>
+
+        <!-- Pending memberships -->
+        <div class="card">
+          <div class="card-header">Pending Memberships <a href="/admin/members.html" class="btn btn-warning btn-sm">Review</a></div>
+          <div class="card-body" id="pending-list" style="padding:0"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="install-bar">
+  <span>Install Library App</span>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-primary btn-sm" onclick="installPWA()">Install</button>
+    <button class="btn btn-ghost btn-sm" style="color:#fff" onclick="document.getElementById('install-bar').classList.remove('show')">Later</button>
+  </div>
+</div>
+
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('admin')) throw '';
+  document.getElementById('admin-name').textContent = getUser()?.name || 'Admin';
+
+  // Show menu button on mobile
+  if (window.innerWidth <= 768) document.getElementById('menu-btn').style.display = 'flex';
+
+  async function loadStats() {
+    const r = await apiFetch('/dashboard/admin-stats');
+    if (!r?.ok) return;
+    const d = r.data;
+    document.getElementById('s-books').textContent    = d.total_books;
+    document.getElementById('s-avail').textContent    = d.available_books;
+    document.getElementById('s-students').textContent = d.total_students;
+    document.getElementById('s-issued').textContent   = d.issued_books;
+    document.getElementById('s-overdue').textContent  = d.overdue_books;
+    document.getElementById('s-fines').textContent    = formatAmount(d.total_fines);
+    document.getElementById('s-members').textContent  = d.active_members;
+    document.getElementById('s-pending').textContent  = d.pending_approvals;
+    document.getElementById('s-visitors').textContent = d.visitors_now;
+  }
+
+  async function loadRecent() {
+    const r = await apiFetch('/issued/');
+    const tbody = document.getElementById('recent-tbody');
+    if (!r?.ok) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px">Error loading</td></tr>'; return; }
+    const rows = r.data.slice(0,8);
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#94a3b8">No records yet</td></tr>'; return; }
+    tbody.innerHTML = rows.map(i => `
+      <tr>
+        <td><strong>${i.title}</strong><br><small style="color:#94a3b8">${i.author}</small></td>
+        <td>${i.student_name}<br><small style="color:#94a3b8">${i.member_id||''}</small></td>
+        <td>${formatDate(i.issued_date)}</td>
+        <td>${formatDate(i.due_date)}</td>
+        <td><span class="badge badge-${i.status==='returned'?'success':i.status==='overdue'?'danger':'warning'}">${i.status}</span></td>
+      </tr>`).join('');
+  }
+
+  async function loadOverdue() {
+    const r = await apiFetch('/issued/overdue');
+    const el = document.getElementById('overdue-list');
+    if (!r?.ok || !r.data.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><p>No overdue books</p></div>'; return; }
+    el.innerHTML = r.data.slice(0,5).map(i => `
+      <div style="padding:12px 16px;border-bottom:1px solid #e2e8f0">
+        <div style="font-weight:600;font-size:13px">${i.title}</div>
+        <div style="font-size:12px;color:#64748b">${i.student_name} &bull; ${i.overdue_days} days overdue</div>
+      </div>`).join('');
+  }
+
+  async function loadPending() {
+    const r = await apiFetch('/membership/all');
+    const el = document.getElementById('pending-list');
+    const pending = r?.data?.filter(m => m.status === 'pending') || [];
+    if (!pending.length) { el.innerHTML = '<div class="empty-state"><div class="empty-icon">&#10003;</div><p>No pending approvals</p></div>'; return; }
+    el.innerHTML = pending.slice(0,5).map(m => `
+      <div style="padding:12px 16px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:13px">${m.name}</div>
+          <div style="font-size:12px;color:#64748b">${m.plan} plan &bull; Rs.${m.amount}</div>
+        </div>
+        <a href="/admin/members.html" class="btn btn-warning btn-sm">Review</a>
+      </div>`).join('');
+  }
+
+  loadStats(); loadRecent(); loadOverdue(); loadPending();
+</script>
+</body>
+</html>

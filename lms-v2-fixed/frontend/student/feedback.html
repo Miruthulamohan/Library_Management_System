@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Feedback Corner — Library LMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .feedback-form { max-width: 620px; }
+    .star-row { display:flex; gap:6px; flex-direction:row-reverse; justify-content:flex-end; margin-bottom:4px; }
+    .star-row input { display:none; }
+    .star-row label { font-size:28px; color:#cbd5e1; cursor:pointer; transition:color .15s; }
+    .star-row input:checked ~ label,
+    .star-row label:hover,
+    .star-row label:hover ~ label { color:#f59e0b; }
+    .feedback-card { border-left:3px solid #4f46e5; margin-bottom:14px; }
+    .feedback-card .meta { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:6px; }
+    .feedback-card .reply-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:13px; }
+    .feedback-card .reply-box strong { color:#059669; display:block; margin-bottom:4px; }
+    .cat-badge { font-size:11px; padding:2px 8px; border-radius:20px; background:#e0e7ff; color:#4338ca; font-weight:600; text-transform:capitalize; }
+    select, textarea, input[type=text] { width:100%; padding:10px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:14px; background:#fff; color:#1e293b; outline:none; transition:border-color .15s; box-sizing:border-box; }
+    select:focus, textarea:focus, input[type=text]:focus { border-color:#4f46e5; }
+    label.field-label { display:block; font-size:13px; font-weight:600; color:#475569; margin-bottom:6px; }
+    .field-group { margin-bottom:16px; }
+    .tabs { display:flex; gap:4px; margin-bottom:20px; border-bottom:2px solid #e2e8f0; }
+    .tabs button { background:none; border:none; padding:10px 18px; font-size:14px; font-weight:600; color:#94a3b8; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all .15s; }
+    .tabs button.active { color:#4f46e5; border-bottom-color:#4f46e5; }
+    .stars-display { color:#f59e0b; font-size:16px; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div>
+      <a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item active" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><span class="topbar-title">Feedback Corner</span></div>
+      <div class="topbar-right"><span class="topbar-user">Hello, <strong id="student-name"></strong></span></div>
+    </header>
+    <main class="content">
+      <div class="tabs">
+        <button class="active" onclick="switchTab('submit',this)">Submit Feedback</button>
+        <button onclick="switchTab('history',this)">My Feedback History</button>
+      </div>
+
+      <!-- Submit Tab -->
+      <div id="tab-submit">
+        <div class="card feedback-form">
+          <div class="card-header">Share Your Feedback</div>
+          <div class="card-body" style="padding:20px">
+            <div class="field-group">
+              <label class="field-label">Category</label>
+              <select id="f-category">
+                <option value="general">General</option>
+                <option value="books">Books & Collection</option>
+                <option value="staff">Staff & Service</option>
+                <option value="facilities">Facilities</option>
+                <option value="suggestions">Suggestions</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Subject <span style="color:#ef4444">*</span></label>
+              <input type="text" id="f-subject" placeholder="Brief title for your feedback" maxlength="200">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Your Message <span style="color:#ef4444">*</span></label>
+              <textarea id="f-message" rows="5" placeholder="Describe your feedback in detail..."></textarea>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Overall Rating (optional)</label>
+              <div class="star-row">
+                <input type="radio" id="s5" name="rating" value="5"><label for="s5" title="Excellent">★</label>
+                <input type="radio" id="s4" name="rating" value="4"><label for="s4" title="Good">★</label>
+                <input type="radio" id="s3" name="rating" value="3"><label for="s3" title="Average">★</label>
+                <input type="radio" id="s2" name="rating" value="2"><label for="s2" title="Poor">★</label>
+                <input type="radio" id="s1" name="rating" value="1"><label for="s1" title="Very Poor">★</label>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="submit-btn" onclick="submitFeedback()">Submit Feedback</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Tab -->
+      <div id="tab-history" style="display:none">
+        <div id="history-list"><div class="empty-state"><p>Loading...</p></div></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+  document.getElementById('student-name').textContent = getUser()?.name || '';
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-submit').style.display  = name === 'submit'  ? '' : 'none';
+    document.getElementById('tab-history').style.display = name === 'history' ? '' : 'none';
+    if (name === 'history') loadHistory();
+  }
+
+  async function submitFeedback() {
+    const subject  = document.getElementById('f-subject').value.trim();
+    const message  = document.getElementById('f-message').value.trim();
+    const category = document.getElementById('f-category').value;
+    const ratingEl = document.querySelector('input[name="rating"]:checked');
+    const rating   = ratingEl ? parseInt(ratingEl.value) : null;
+
+    if (!subject) { showToast('Please enter a subject', 'warning'); return; }
+    if (!message) { showToast('Please enter your message', 'warning'); return; }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    const r = await apiFetch('/feedback/submit', {
+      method: 'POST',
+      body: JSON.stringify({ subject, message, category, rating })
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Submit Feedback';
+
+    if (r?.ok) {
+      showToast('Feedback submitted! Thank you. 🎉', 'success');
+      document.getElementById('f-subject').value = '';
+      document.getElementById('f-message').value = '';
+      document.querySelectorAll('input[name="rating"]').forEach(i => i.checked = false);
+      document.getElementById('f-category').value = 'general';
+    } else {
+      showToast(r?.data?.error || 'Failed to submit', 'error');
+    }
+  }
+
+  function starsHtml(rating) {
+    if (!rating) return '<span style="color:#94a3b8;font-size:13px">No rating</span>';
+    return '<span class="stars-display">' + '★'.repeat(rating) + '☆'.repeat(5 - rating) + '</span>';
+  }
+
+  async function loadHistory() {
+    const container = document.getElementById('history-list');
+    container.innerHTML = '<div class="empty-state"><p>Loading…</p></div>';
+    const r = await apiFetch('/feedback/my');
+    if (!r?.ok) { container.innerHTML = '<div class="empty-state"><p>Could not load feedback</p></div>'; return; }
+    const list = r.data;
+    if (!list.length) { container.innerHTML = '<div class="empty-state"><p>You haven\'t submitted any feedback yet.</p></div>'; return; }
+    container.innerHTML = list.map(f => `
+      <div class="card feedback-card" style="padding:16px 20px">
+        <div class="meta">
+          <span class="cat-badge">${f.category}</span>
+          ${starsHtml(f.rating)}
+          <span style="color:#94a3b8;font-size:12px;margin-left:auto">${formatDate(f.created_at)}</span>
+          ${!f.is_read ? '<span class="badge badge-warning" style="font-size:11px">Pending Review</span>' : '<span class="badge badge-success" style="font-size:11px">Reviewed</span>'}
+        </div>
+        <strong>${f.subject}</strong>
+        <p style="margin:6px 0 0;color:#475569;font-size:14px">${f.message}</p>
+        ${f.admin_reply ? `<div class="reply-box"><strong>📩 Admin Reply</strong>${f.admin_reply}</div>` : ''}
+      </div>
+    `).join('');
+  }
+</script>
+</body>
+</html>

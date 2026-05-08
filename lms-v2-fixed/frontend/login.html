@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login — Library LMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-box"><span style="color:#fff;font-weight:700;font-size:16px">LMS</span></div>
+      <h1>Library System</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Login</div>
+      <div class="auth-tab" id="tab-reg" onclick="switchTab('reg')">Register</div>
+    </div>
+
+    <!-- Login -->
+    <div id="form-login">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="l-email" placeholder="Enter your email" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="l-pw" placeholder="Enter your password">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="doLogin()">Login</button>
+    </div>
+
+    <!-- Register -->
+    <div id="form-reg" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="r-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="r-phone" placeholder="9876543210">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="r-email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="r-pw" placeholder="Minimum 6 characters">
+      </div>
+      <button class="btn btn-primary btn-block btn-lg" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/script.js"></script>
+<script>
+  if (getToken() && getUser()) {
+    const u = getUser();
+    location.href = u.role === 'admin' ? '/admin/dashboard.html' : '/student/dashboard.html';
+  }
+
+  function switchTab(tab) {
+    document.getElementById('tab-login').classList.toggle('active', tab==='login');
+    document.getElementById('tab-reg').classList.toggle('active',   tab==='reg');
+    document.getElementById('form-login').style.display = tab==='login' ? 'block' : 'none';
+    document.getElementById('form-reg').style.display   = tab==='reg'   ? 'block' : 'none';
+  }
+
+  async function doLogin() {
+    const email = document.getElementById('l-email').value.trim();
+    const pw    = document.getElementById('l-pw').value;
+    if (!email || !pw) { showToast('Please enter email and password', 'warning'); return; }
+    const r = await apiFetch('/auth/login', { method:'POST', body:JSON.stringify({email,password:pw}) });
+    if (!r) return;
+    if (!r.ok) { showToast(r.data.error || 'Login failed', 'error'); return; }
+    setAuth(r.data.token, r.data);
+    showToast('Login successful!', 'success');
+    setTimeout(() => {
+      location.href = r.data.role === 'admin' ? '/admin/dashboard.html' : '/student/dashboard.html';
+    }, 400);
+  }
+
+  async function doRegister() {
+    const name  = document.getElementById('r-name').value.trim();
+    const email = document.getElementById('r-email').value.trim();
+    const pw    = document.getElementById('r-pw').value;
+    const phone = document.getElementById('r-phone').value.trim();
+    if (!name || !email || !pw) { showToast('Please fill all required fields', 'warning'); return; }
+    if (pw.length < 6) { showToast('Password must be at least 6 characters', 'warning'); return; }
+    const r = await apiFetch('/auth/register', { method:'POST', body:JSON.stringify({name,email,password:pw,phone}) });
+    if (!r) return;
+    if (!r.ok) { showToast(r.data.error || 'Registration failed', 'error'); return; }
+    setAuth(r.data.token, r.data);
+    showToast('Account created successfully!', 'success');
+    setTimeout(() => location.href = '/student/dashboard.html', 400);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    document.getElementById('tab-login').classList.contains('active') ? doLogin() : doRegister();
+  });
+</script>
+</body>
+</html>

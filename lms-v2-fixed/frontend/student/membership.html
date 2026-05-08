@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Membership — Library LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div>
+      <a class="nav-item active" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-left"><span class="topbar-title">Membership Card</span></div></header>
+    <main class="content">
+      <!-- Approved card display -->
+      <div id="card-display" style="display:none;margin-bottom:24px">
+        <div class="member-card-display" style="max-width:340px">
+          <div style="font-size:11px;opacity:.6;margin-bottom:16px;letter-spacing:1px">LIBRARY MEMBERSHIP CARD</div>
+          <div class="mc-name" id="mc-name"></div>
+          <div class="mc-id" id="mc-id"></div>
+          <div class="mc-plan" id="mc-plan"></div>
+          <div class="mc-valid" id="mc-valid" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <!-- Pending status -->
+      <div id="pending-display" style="display:none;margin-bottom:24px">
+        <div class="alert alert-warning">
+          Your membership application is pending admin approval. You will receive a notification once approved.
+        </div>
+      </div>
+
+      <!-- Apply form -->
+      <div id="apply-display">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:24px">
+          <div class="card" id="plan-basic" onclick="selectPlan('basic')" style="cursor:pointer;border:2px solid transparent">
+            <div class="card-body" style="text-align:center">
+              <div style="font-weight:700;font-size:16px;margin-bottom:4px">Basic</div>
+              <div style="font-size:26px;font-weight:800;color:#4f46e5">Rs.199</div>
+              <div style="font-size:12px;color:#64748b;margin:8px 0">3 months validity</div>
+              <div style="font-size:12px;color:#64748b">Borrow up to 2 books</div>
+            </div>
+          </div>
+          <div class="card" id="plan-standard" onclick="selectPlan('standard')" style="cursor:pointer;border:2px solid transparent">
+            <div class="card-body" style="text-align:center">
+              <div style="font-weight:700;font-size:16px;margin-bottom:4px">Standard</div>
+              <div style="font-size:26px;font-weight:800;color:#4f46e5">Rs.399</div>
+              <div style="font-size:12px;color:#64748b;margin:8px 0">6 months validity</div>
+              <div style="font-size:12px;color:#64748b">Borrow up to 4 books</div>
+            </div>
+          </div>
+          <div class="card" id="plan-premium" onclick="selectPlan('premium')" style="cursor:pointer;border:2px solid transparent">
+            <div class="card-body" style="text-align:center">
+              <div style="font-weight:700;font-size:16px;margin-bottom:4px">Premium</div>
+              <div style="font-size:26px;font-weight:800;color:#4f46e5">Rs.699</div>
+              <div style="font-size:12px;color:#64748b;margin:8px 0">12 months validity</div>
+              <div style="font-size:12px;color:#64748b">Unlimited borrowing</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="payment-section" style="display:none;max-width:480px">
+          <div class="card">
+            <div class="card-header">Pay via QR Code</div>
+            <div class="card-body" style="text-align:center">
+              <p style="margin-bottom:16px;font-size:13px;color:#64748b">Scan the QR code below to pay <strong id="pay-amount"></strong></p>
+              <div id="qr-container" style="display:inline-block;background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:16px">
+                <img id="qr-canvas" style="width:180px;height:180px;display:block;" alt="Payment QR Code">
+              </div>
+              <p style="font-size:12px;color:#94a3b8;margin-bottom:16px">After payment, enter your transaction ID below</p>
+              <div class="form-group">
+                <input type="text" id="f-txn" placeholder="Enter UPI Transaction ID / Reference Number">
+              </div>
+              <button class="btn btn-primary btn-block" onclick="submitApplication()">Submit Application</button>
+              <p style="font-size:11px;color:#94a3b8;margin-top:10px">Admin will verify payment and approve your card within 24 hours</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+  const PRICES = { basic:199, standard:399, premium:699 };
+  let selectedPlan = '';
+  const user = getUser();
+
+  async function load() {
+    const r = await apiFetch('/membership/my');
+    if (!r?.ok) return;
+    const m = r.data;
+    if (m && m.status === 'approved') {
+      document.getElementById('card-display').style.display = 'block';
+      document.getElementById('apply-display').style.display = 'none';
+      document.getElementById('mc-name').textContent  = user?.name || '';
+      document.getElementById('mc-id').textContent    = user?.member_id || '';
+      document.getElementById('mc-plan').textContent  = m.plan?.toUpperCase() + ' MEMBER';
+      document.getElementById('mc-valid').textContent = `Valid till: ${formatDate(m.end_date)}`;
+    } else if (m && m.status === 'pending') {
+      document.getElementById('pending-display').style.display = 'block';
+    }
+  }
+
+  function selectPlan(plan) {
+    selectedPlan = plan;
+    document.querySelectorAll('[id^="plan-"]').forEach(el => el.style.borderColor = 'transparent');
+    document.getElementById(`plan-${plan}`).style.borderColor = '#4f46e5';
+    const amount = PRICES[plan];
+    document.getElementById('pay-amount').textContent = `Rs.${amount}`;
+    document.getElementById('payment-section').style.display = 'block';
+
+    // Generate QR via Flask API (no CDN needed)
+    const upiUrl = `upi://pay?pa=library@upi&pn=Library+LMS&am=${amount}&tn=Membership+${plan}`;
+    const qrImg = document.getElementById('qr-canvas');
+    qrImg.src = `/api/qr?url=${encodeURIComponent(upiUrl)}`;
+  }
+
+  async function submitApplication() {
+    if (!selectedPlan) { showToast('Please select a plan','warning'); return; }
+    const txn = document.getElementById('f-txn').value.trim();
+    if (!txn) { showToast('Please enter transaction ID','warning'); return; }
+    const r = await apiFetch('/membership/apply', { method:'POST', body:JSON.stringify({plan:selectedPlan, txn_id:txn}) });
+    if (r?.ok) {
+      showToast('Application submitted! Waiting for admin approval.','success');
+      document.getElementById('apply-display').style.display = 'none';
+      document.getElementById('pending-display').style.display = 'block';
+    } else showToast(r?.data?.error||'Error submitting','error');
+  }
+  load();
+</script>
+</body>
+</html>

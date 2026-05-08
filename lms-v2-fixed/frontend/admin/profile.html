@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Profile — Admin LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Admin Panel</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div><a class="nav-item" href="/admin/dashboard.html">Dashboard</a><a class="nav-item" href="/admin/books.html">Books</a>
+      <div class="nav-section">Issue / Return</div><a class="nav-item" href="/admin/issue.html">Issue Book</a><a class="nav-item" href="/admin/return.html">Return Book</a><a class="nav-item" href="/admin/overdue.html">Overdue</a>
+      <div class="nav-section">Students</div><a class="nav-item" href="/admin/students.html">Students</a><a class="nav-item" href="/admin/who-is-in.html">Who Is In</a>
+      <a class="nav-item" href="/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
+      <div class="nav-section">Membership</div><a class="nav-item" href="/admin/members.html">Members</a>
+      <div class="nav-section">Communication</div><a class="nav-item" href="/admin/events.html">Events</a>
+      <a class="nav-item" href="/admin/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <div class="nav-section">Settings</div><a class="nav-item active" href="/admin/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-left"><span class="topbar-title">Admin Profile</span></div></header>
+    <main class="content">
+      <div style="max-width:560px;display:grid;gap:20px">
+        <div class="card">
+          <div class="card-header">Profile Information</div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group"><label>Full Name</label><input type="text" id="f-name"></div>
+              <div class="form-group"><label>Phone</label><input type="text" id="f-phone"></div>
+            </div>
+            <div class="form-group"><label>Email</label><input type="email" id="f-email" disabled style="background:#f8fafc"></div>
+            <div class="form-group"><label>Address</label><textarea id="f-address" rows="2"></textarea></div>
+            <button class="btn btn-primary" onclick="updateProfile()">Update Profile</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Change Admin Password</div>
+          <div class="card-body">
+            <p style="font-size:13px;color:#64748b;margin-bottom:16px">This password is shared with all library staff. Change carefully.</p>
+            <div class="form-group"><label>New Password</label><input type="password" id="f-pw" placeholder="Min 6 characters"></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="f-pw2" placeholder="Repeat password"></div>
+            <button class="btn btn-warning" onclick="changePassword()">Change Password</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Admin Credentials (Shared with Staff)</div>
+          <div class="card-body">
+            <div style="background:#f8fafc;border-radius:8px;padding:16px;font-family:monospace;font-size:13px">
+              <div>Email: <strong>admin@library.com</strong></div>
+              <div style="margin-top:6px">Password: <strong>Library@2024</strong> (change after setup)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('admin')) throw '';
+  async function load() {
+    const r = await apiFetch('/auth/profile');
+    if (!r?.ok) return;
+    document.getElementById('f-name').value    = r.data.name||'';
+    document.getElementById('f-phone').value   = r.data.phone||'';
+    document.getElementById('f-email').value   = r.data.email||'';
+    document.getElementById('f-address').value = r.data.address||'';
+  }
+  async function updateProfile() {
+    const r = await apiFetch('/auth/profile', { method:'PUT', body:JSON.stringify({
+      name:document.getElementById('f-name').value,
+      phone:document.getElementById('f-phone').value,
+      address:document.getElementById('f-address').value
+    })});
+    if (r?.ok) showToast('Profile updated!','success');
+    else showToast('Error updating','error');
+  }
+  async function changePassword() {
+    const pw  = document.getElementById('f-pw').value;
+    const pw2 = document.getElementById('f-pw2').value;
+    if (!pw || pw.length < 6) { showToast('Min 6 characters','warning'); return; }
+    if (pw !== pw2) { showToast('Passwords do not match','warning'); return; }
+    const r = await apiFetch('/auth/change-password', { method:'POST', body:JSON.stringify({password:pw}) });
+    if (r?.ok) { showToast('Password changed!','success'); document.getElementById('f-pw').value=''; document.getElementById('f-pw2').value=''; }
+    else showToast('Error','error');
+  }
+  load();
+</script>
+</body>
+</html>

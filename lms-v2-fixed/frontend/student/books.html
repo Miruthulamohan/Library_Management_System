@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Browse Books — Library LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item active" href="/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div>
+      <a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-left"><span class="topbar-title">Browse Books</span></div></header>
+    <main class="content">
+      <div class="filter-bar">
+        <div class="search-wrap"><span class="search-icon">&#128269;</span><input type="text" id="search" placeholder="Search by title, author..." oninput="debounce(load,400)()"></div>
+        <select id="cat" onchange="load()" style="width:160px"><option value="">All Categories</option></select>
+      </div>
+      <div id="books-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px"></div>
+    </main>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+  async function loadCats() {
+    const r = await apiFetch('/books/categories');
+    if (!r?.ok) return;
+    const sel = document.getElementById('cat');
+    r.data.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+  }
+  async function load() {
+    const search = document.getElementById('search').value;
+    const cat    = document.getElementById('cat').value;
+    const r = await apiFetch(`/books/?search=${encodeURIComponent(search)}&category=${encodeURIComponent(cat)}`);
+    const grid = document.getElementById('books-grid');
+    if (!r?.ok) return;
+    if (!r.data.length) { grid.innerHTML='<div class="empty-state"><p>No books found</p></div>'; return; }
+    grid.innerHTML = r.data.map(b => `
+      <div class="card">
+        <div class="card-body">
+          ${b.cover_url ? `<img src="${b.cover_url}" style="width:100%;height:160px;object-fit:cover;border-radius:6px;margin-bottom:12px" onerror="this.style.display='none'">` : ''}
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px">${b.title}</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:8px">${b.author}</div>
+          ${b.category ? `<span class="badge badge-info" style="margin-bottom:8px">${b.category}</span>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <span style="font-size:12px;color:#64748b">${b.available}/${b.total_copies} available</span>
+            <span class="badge badge-${b.available>0?'success':'danger'}">${b.available>0?'Available':'Unavailable'}</span>
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-primary btn-sm" onclick="borrowBook(${b.id},'${b.title.replace(/'/g, "\\'")}')" ${b.available>0?'':'disabled'}>Borrow</button>
+          </div>
+          ${b.description ? `<p style="font-size:12px;color:#64748b;margin-top:8px;line-height:1.5">${b.description}</p>` : ''}
+        </div>
+      </div>`).join('');
+  }
+  async function borrowBook(bookId, title) {
+    if (!confirm(`Borrow "${title}"?`)) return;
+    const r = await apiFetch('/issued/borrow', { method:'POST', body:JSON.stringify({ book_id: bookId }) });
+    if (r?.ok) {
+      showToast(`Borrowed successfully. Due: ${formatDate(r.data.due_date)}`,'success');
+      load();
+    } else showToast(r?.data?.error || 'Unable to borrow this book','error');
+  }
+  loadCats(); load();
+</script>
+</body>
+</html>

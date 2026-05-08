@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Dashboard — Library LMS</title><link rel="stylesheet" href="/css/style.css"><link rel="manifest" href="/manifest.json"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item active" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div>
+      <a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">
+        Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+      </a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><span class="topbar-title">My Dashboard</span></div>
+      <div class="topbar-right"><span class="topbar-user">Hello, <strong id="student-name"></strong></span></div>
+    </header>
+    <main class="content">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total Borrowed</div><div class="stat-val" id="s-total">—</div></div>
+        <div class="stat-card"><div class="stat-label">Currently Issued</div><div class="stat-val" id="s-issued">—</div></div>
+        <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-val" id="s-overdue" style="color:#ef4444">—</div></div>
+        <div class="stat-card"><div class="stat-label">Pending Fine</div><div class="stat-val" id="s-fine" style="color:#f59e0b">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">My Current Books <a href="/student/my-books.html" class="btn btn-outline btn-sm">View All</a></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Issued</th><th>Due Date</th><th>Status</th></tr></thead>
+            <tbody id="books-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">Library Check-In / Check-Out</div>
+        <div class="card-body">
+          <div id="visit-status" style="margin-bottom:12px;color:#475569">Loading current status...</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-success" id="btn-checkin" onclick="doCheckin()">Check In</button>
+            <button class="btn btn-danger" id="btn-checkout" onclick="doCheckout()">Check Out</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="install-bar">
+  <span>Install Library App on your phone</span>
+  <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="installPWA()">Install</button><button class="btn btn-ghost btn-sm" style="color:#fff" onclick="document.getElementById('install-bar').classList.remove('show')">Later</button></div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+  document.getElementById('student-name').textContent = getUser()?.name || '';
+  // Always use browser clock for immediate accurate time display
+  function showCheckedIn(dt) {
+    const now = dt || new Date();
+    const dateStr = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    const timeStr = now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', hour12: true });
+    document.getElementById('visit-status').innerHTML =
+      `You are currently <strong style="color:#059669">Checked In</strong> since ${dateStr} ${timeStr}.`;
+    document.getElementById('btn-checkin').disabled = true;
+    document.getElementById('btn-checkout').disabled = false;
+  }
+  function showCheckedOut() {
+    document.getElementById('visit-status').innerHTML =
+      'You are currently <strong style="color:#ef4444">Checked Out</strong>.';
+    document.getElementById('btn-checkin').disabled = false;
+    document.getElementById('btn-checkout').disabled = true;
+  }
+
+  async function loadVisitStatus() {
+    const r = await apiFetch('/visitors/my-status');
+    if (!r?.ok) return;
+    if (r.data.is_in) {
+      showCheckedIn(r.data.current_check_in ? new Date() : new Date());
+    } else {
+      showCheckedOut();
+    }
+  }
+
+  async function doCheckin() {
+    const now = new Date(); // capture browser time BEFORE API call
+    const r = await apiFetch('/visitors/checkin', { method:'POST', body:JSON.stringify({}) });
+    if (r?.ok) { showToast('Checked in successfully','success'); showCheckedIn(now); }
+    else showToast(r?.data?.error || 'Unable to check in','error');
+  }
+
+  async function doCheckout() {
+    const r = await apiFetch('/visitors/checkout', { method:'POST' });
+    if (r?.ok) { showToast('Checked out successfully','success'); showCheckedOut(); }
+    else showToast(r?.data?.error || 'Unable to check out','error');
+  }
+  async function load() {
+    const [sr, br] = await Promise.all([apiFetch('/dashboard/student-stats'), apiFetch('/issued/')]);
+    if (sr?.ok) {
+      document.getElementById('s-total').textContent  = sr.data.total_borrowed||0;
+      document.getElementById('s-issued').textContent = sr.data.currently_issued||0;
+      document.getElementById('s-overdue').textContent= sr.data.overdue||0;
+      document.getElementById('s-fine').textContent   = formatAmount(sr.data.pending_fine);
+    }
+    const tbody = document.getElementById('books-tbody');
+    if (!br?.ok) return;
+    const current = br.data.filter(b => b.status==='issued').slice(0,5);
+    if (!current.length) { tbody.innerHTML='<tr><td colspan="4"><div class="empty-state"><p>No books currently issued</p></div></td></tr>'; return; }
+    tbody.innerHTML = current.map(b => {
+      const overdue = new Date(b.due_date) < new Date();
+      return `<tr>
+        <td><strong>${b.title}</strong><br><small style="color:#94a3b8">${b.author}</small></td>
+        <td>${formatDate(b.issued_date)}</td>
+        <td style="color:${overdue?'#ef4444':''}">${formatDate(b.due_date)}</td>
+        <td><span class="badge badge-${overdue?'danger':'warning'}">${overdue?'Overdue':'Issued'}</span></td>
+      </tr>`;
+    }).join('');
+  }
+  load();
+  loadVisitStatus();
+</script>
+</body>
+</html>

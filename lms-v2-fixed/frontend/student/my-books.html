@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Books — Library LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/student/books.html">Browse Books</a>
+      <a class="nav-item active" href="/student/my-books.html">My Books</a>
+      <div class="nav-section">Services</div>
+      <a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <div class="nav-section">Account</div>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar"><div class="topbar-left"><span class="topbar-title">My Books</span></div></header>
+    <main class="content">
+      <div class="card">
+        <div class="card-header">Borrowed Books History</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Issued</th><th>Due Date</th><th>Returned</th><th>Fine</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="books-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('student')) throw '';
+  async function load() {
+    const r = await apiFetch('/issued/');
+    const tbody = document.getElementById('books-tbody');
+    if (!r?.ok || !r.data.length) { tbody.innerHTML='<tr><td colspan="7"><div class="empty-state"><p>No borrowing history</p></div></td></tr>'; return; }
+    tbody.innerHTML = r.data.map(b => {
+      const overdue = b.status==='issued' && new Date(b.due_date)<new Date();
+      return `<tr>
+        <td><strong>${b.title}</strong><br><small style="color:#94a3b8">${b.author}</small></td>
+        <td>${formatDate(b.issued_date)}</td>
+        <td style="color:${overdue?'#ef4444':''}">${formatDate(b.due_date)}</td>
+        <td>${b.return_date ? formatDate(b.return_date) : '—'}</td>
+        <td>${(() => {
+          if (b.status === 'returned') {
+            if (b.fine > 0) return '<span style="color:' + (b.fine_paid ? '#10b981' : '#ef4444') + '">Rs.' + parseFloat(b.fine).toFixed(2) + ' ' + (b.fine_paid ? '(Paid)' : '(Unpaid)') + '</span>';
+            return '—';
+          }
+          // Still issued — show live overdue fine
+          const overdueDays = new Date(b.due_date) < new Date() ? Math.floor((new Date() - new Date(b.due_date)) / 86400000) : 0;
+          if (overdueDays > 0) return '<span style="color:#ef4444;font-weight:600">Rs.' + (overdueDays * 10).toFixed(2) + ' (pending)</span>';
+          return '—';
+        })()}</td>
+        <td><span class="badge badge-${b.status==='returned'?'success':overdue?'danger':'warning'}">${overdue?'Overdue':b.status}</span></td>
+        <td>${b.status === 'issued' ? `<button class="btn btn-success btn-sm" onclick="returnBook(${b.id},'${b.title.replace(/'/g, "\\'")}')">Return</button>` : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+  async function returnBook(id, title) {
+    if (!confirm(`Return "${title}"?`)) return;
+    const r = await apiFetch(`/issued/return-self/${id}`, { method:'POST' });
+    if (r?.ok) {
+      const msg = r.data.fine > 0 ? `Returned. Fine: Rs.${r.data.fine}` : 'Book returned successfully!';
+      showToast(msg, r.data.fine > 0 ? 'warning' : 'success');
+      load();
+    } else showToast(r?.data?.error || 'Unable to return this book','error');
+  }
+  load();
+</script>
+</body>
+</html>

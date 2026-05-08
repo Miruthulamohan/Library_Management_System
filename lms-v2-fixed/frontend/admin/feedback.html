@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Student Feedback — Admin LMS</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .feedback-card { border-left:4px solid #4f46e5; margin-bottom:14px; position:relative; }
+    .feedback-card.unread { border-left-color:#f59e0b; background:#fffbeb; }
+    .feedback-card .meta { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    .cat-badge { font-size:11px; padding:2px 10px; border-radius:20px; background:#e0e7ff; color:#4338ca; font-weight:600; text-transform:capitalize; }
+    .stars-display { color:#f59e0b; font-size:15px; }
+    .reply-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; margin-top:10px; font-size:13px; }
+    .reply-box strong { color:#059669; display:block; margin-bottom:4px; }
+    .reply-form textarea { width:100%; padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; box-sizing:border-box; resize:vertical; }
+    .reply-form textarea:focus { border-color:#4f46e5; outline:none; }
+    .action-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:flex-start; }
+    .filter-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+    .filter-row select { padding:8px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; background:#fff; color:#1e293b; outline:none; }
+    .filter-row select:focus { border-color:#4f46e5; }
+    .stats-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+    .mini-stat { background:#fff; border:1.5px solid #e2e8f0; border-radius:12px; padding:14px 20px; min-width:120px; text-align:center; }
+    .mini-stat .val { font-size:26px; font-weight:700; color:#4f46e5; }
+    .mini-stat .lbl { font-size:12px; color:#94a3b8; margin-top:2px; }
+    .toggle-reply-btn { background:none; border:1px solid #4f46e5; color:#4f46e5; padding:4px 12px; border-radius:6px; font-size:12px; cursor:pointer; transition:.15s; }
+    .toggle-reply-btn:hover { background:#4f46e5; color:#fff; }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Admin Panel</div></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <a class="nav-item" href="/admin/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/admin/books.html">Books</a>
+      <div class="nav-section">Issue / Return</div>
+      <a class="nav-item" href="/admin/issue.html">Issue Book</a>
+      <a class="nav-item" href="/admin/return.html">Return Book</a>
+      <a class="nav-item" href="/admin/overdue.html">Overdue</a>
+      <div class="nav-section">Students</div>
+      <a class="nav-item" href="/admin/students.html">Students</a>
+      <a class="nav-item" href="/admin/who-is-in.html">Who Is In</a>
+      <a class="nav-item active" href="/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
+      <div class="nav-section">Membership</div>
+      <a class="nav-item" href="/admin/members.html">Members</a>
+      <div class="nav-section">Communication</div>
+      <a class="nav-item" href="/admin/events.html">Events</a>
+      <a class="nav-item" href="/admin/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <div class="nav-section">Settings</div>
+      <a class="nav-item" href="/admin/profile.html">Profile</a>
+    </nav>
+    <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><span class="topbar-title">Student Feedback Corner</span></div>
+      <div class="topbar-right"><button class="btn btn-outline btn-sm" onclick="load()">Refresh</button></div>
+    </header>
+    <main class="content">
+
+      <div class="stats-row" id="stats-row">
+        <div class="mini-stat"><div class="val" id="stat-total">—</div><div class="lbl">Total</div></div>
+        <div class="mini-stat"><div class="val" id="stat-unread" style="color:#f59e0b">—</div><div class="lbl">Unread</div></div>
+        <div class="mini-stat"><div class="val" id="stat-replied" style="color:#10b981">—</div><div class="lbl">Replied</div></div>
+        <div class="mini-stat"><div class="val" id="stat-avg" style="color:#6366f1">—</div><div class="lbl">Avg Rating</div></div>
+      </div>
+
+      <div class="filter-row">
+        <label style="font-size:13px;font-weight:600;color:#475569">Filter:</label>
+        <select id="f-cat" onchange="load()">
+          <option value="">All Categories</option>
+          <option value="general">General</option>
+          <option value="books">Books & Collection</option>
+          <option value="staff">Staff & Service</option>
+          <option value="facilities">Facilities</option>
+          <option value="suggestions">Suggestions</option>
+        </select>
+        <select id="f-read" onchange="load()">
+          <option value="">All Status</option>
+          <option value="0">Unread</option>
+          <option value="1">Read</option>
+        </select>
+      </div>
+
+      <div id="feedback-list"><div class="empty-state"><p>Loading feedback…</p></div></div>
+    </main>
+  </div>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal-overlay" id="reply-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header"><span class="modal-title">Reply to Feedback</span><button class="modal-close" onclick="closeModal('reply-modal')">×</button></div>
+    <div class="modal-body">
+      <p id="modal-subject" style="font-weight:600;margin-bottom:8px"></p>
+      <p id="modal-message" style="color:#475569;font-size:14px;margin-bottom:16px"></p>
+      <label style="font-size:13px;font-weight:600;color:#475569;display:block;margin-bottom:6px">Your Reply</label>
+      <textarea id="modal-reply" rows="4" placeholder="Write your reply here…" style="width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('reply-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendReply()">Send Reply</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/script.js"></script>
+<script>
+  if (!requireAuth('admin')) throw '';
+
+  let allFeedback = [];
+  let replyTarget = null;
+
+  function starsHtml(rating) {
+    if (!rating) return '<span style="color:#94a3b8;font-size:12px">No rating</span>';
+    return `<span class="stars-display">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</span>`;
+  }
+
+  async function load() {
+    const cat  = document.getElementById('f-cat').value;
+    const read = document.getElementById('f-read').value;
+    let url = '/feedback/admin/all';
+    const params = [];
+    if (cat)  params.push(`category=${cat}`);
+    if (read !== '') params.push(`is_read=${read}`);
+    if (params.length) url += '?' + params.join('&');
+
+    const r = await apiFetch(url);
+    const container = document.getElementById('feedback-list');
+    if (!r?.ok) { container.innerHTML = '<div class="empty-state"><p>Could not load feedback</p></div>'; return; }
+
+    allFeedback = r.data || [];
+    updateStats(allFeedback);
+
+    if (!allFeedback.length) {
+      container.innerHTML = '<div class="empty-state"><p>No feedback found</p></div>';
+      return;
+    }
+
+    container.innerHTML = allFeedback.map(f => `
+      <div class="card feedback-card ${!f.is_read ? 'unread' : ''}" id="fb-${f.id}" style="padding:16px 20px">
+        <div class="meta">
+          <span class="cat-badge">${f.category}</span>
+          ${starsHtml(f.rating)}
+          <span style="font-weight:600;color:#1e293b">${f.student_name}</span>
+          <span class="badge badge-info" style="font-size:11px">${f.member_id || '—'}</span>
+          <span style="color:#94a3b8;font-size:12px;margin-left:auto">${formatDateTime(f.created_at)}</span>
+          ${!f.is_read ? '<span class="badge badge-warning" style="font-size:11px">New</span>' : ''}
+        </div>
+        <strong style="font-size:15px">${f.subject}</strong>
+        <p style="margin:6px 0 0;color:#475569;font-size:14px">${f.message}</p>
+        ${f.admin_reply ? `<div class="reply-box"><strong>📩 Your Reply <span style="font-weight:400;color:#94a3b8">(${formatDate(f.replied_at)})</span></strong>${f.admin_reply}</div>` : ''}
+        <div class="action-row">
+          ${!f.is_read ? `<button class="btn btn-outline btn-sm" onclick="markRead(${f.id})">Mark as Read</button>` : ''}
+          <button class="toggle-reply-btn" onclick="openReply(${f.id}, '${escHtml(f.subject)}', '${escHtml(f.message)}')">
+            ${f.admin_reply ? 'Edit Reply' : 'Reply'}
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteFb(${f.id})">Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    loadBadge();
+  }
+
+  function escHtml(s) {
+    return String(s || '').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  }
+
+  function updateStats(data) {
+    const total   = data.length;
+    const unread  = data.filter(f => !f.is_read).length;
+    const replied = data.filter(f => f.admin_reply).length;
+    const rated   = data.filter(f => f.rating);
+    const avg     = rated.length ? (rated.reduce((s,f) => s + f.rating, 0) / rated.length).toFixed(1) : '—';
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-unread').textContent  = unread;
+    document.getElementById('stat-replied').textContent = replied;
+    document.getElementById('stat-avg').textContent     = avg !== '—' ? avg + ' ★' : '—';
+  }
+
+  async function markRead(id) {
+    const r = await apiFetch(`/feedback/admin/${id}`, { method:'PUT', body:JSON.stringify({}) });
+    if (r?.ok) { showToast('Marked as read','success'); load(); }
+  }
+
+  function openReply(id, subject, message) {
+    replyTarget = id;
+    document.getElementById('modal-subject').textContent = subject;
+    document.getElementById('modal-message').textContent = message;
+    const existing = allFeedback.find(f => f.id === id);
+    document.getElementById('modal-reply').value = existing?.admin_reply || '';
+    openModal('reply-modal');
+  }
+
+  async function sendReply() {
+    const reply = document.getElementById('modal-reply').value.trim();
+    if (!reply) { showToast('Please enter a reply','warning'); return; }
+    const r = await apiFetch(`/feedback/admin/${replyTarget}`, {
+      method: 'PUT',
+      body: JSON.stringify({ admin_reply: reply })
+    });
+    if (r?.ok) {
+      showToast('Reply sent','success');
+      closeModal('reply-modal');
+      load();
+    } else showToast(r?.data?.error || 'Error sending reply','error');
+  }
+
+  async function deleteFb(id) {
+    if (!confirm('Delete this feedback permanently?')) return;
+    const r = await apiFetch(`/feedback/admin/${id}`, { method:'DELETE' });
+    if (r?.ok) { showToast('Deleted','success'); load(); }
+    else showToast('Error deleting feedback','error');
+  }
+
+  async function loadBadge() {
+    const r = await apiFetch('/feedback/admin/unread-count');
+    const badge = document.getElementById('fb-badge');
+    if (r?.ok && r.data.count > 0) {
+      badge.textContent = r.data.count;
+      badge.style.display = 'inline';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  load();
+</script>
+</body>
+</html>
