@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Library Management System</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="frontend/css/style.css">
+  <link rel="manifest" href="frontend/manifest.json">
   <meta name="theme-color" content="#4f46e5">
 </head>
 <body>
@@ -18,7 +18,7 @@
     <p>Manage books, members, events and more</p>
 
     <div class="welcome-btns">
-      <button class="btn-white" onclick="location.href='/login.html'">Login / Register</button>
+      <button class="btn-white" onclick="location.href='frontend/login.html'">Login / Register</button>
     </div>
 
   </div>
@@ -33,12 +33,12 @@
   </div>
 </div>
 
-<script src="/js/script.js"></script>
+<script src="frontend/js/script.js"></script>
 <script>
   // Redirect if already logged in
   const u = getUser();
   if (getToken() && u) {
-    location.href = u.role === 'admin' ? '/admin/dashboard.html' : '/student/dashboard.html';
+    location.href = u.role === 'admin' ? 'frontend/admin/dashboard.html' : 'frontend/student/dashboard.html';
   }
 
 </script>
