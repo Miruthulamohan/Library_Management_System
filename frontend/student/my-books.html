@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Books — Library LMS</title><link rel="stylesheet" href="/css/style.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Books — Library LMS</title><link rel="stylesheet" href="/Library_Management_System/frontend/css/style.css"></head>
 <body>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <a class="nav-item" href="/student/dashboard.html">Dashboard</a>
-      <a class="nav-item" href="/student/books.html">Browse Books</a>
-      <a class="nav-item active" href="/student/my-books.html">My Books</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/books.html">Browse Books</a>
+      <a class="nav-item active" href="/Library_Management_System/frontend/student/my-books.html">My Books</a>
       <div class="nav-section">Services</div>
-      <a class="nav-item" href="/student/membership.html">Membership Card</a>
-      <a class="nav-item" href="/student/events.html">Events</a>
-      <a class="nav-item" href="/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
-      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/events.html">Events</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/feedback.html">Feedback Corner</a>
       <div class="nav-section">Account</div>
-      <a class="nav-item" href="/student/profile.html">Profile</a>
+      <a class="nav-item" href="/Library_Management_System/frontend/student/profile.html">Profile</a>
     </nav>
     <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
   </aside>
@@ -35,7 +35,7 @@
     </main>
   </div>
 </div>
-<script src="/js/script.js"></script>
+<script src="/Library_Management_System/frontend/js/script.js"></script>
 <script>
   if (!requireAuth('student')) throw '';
   async function load() {
