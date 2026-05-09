@@ -1,8 +1,8 @@
 """Database connection"""
+import os
 import datetime
 import mysql.connector
 from mysql.connector import Error
-import os
 DB_CONFIG = {
     'host'       : os.environ.get('MYSQLHOST', 'localhost'),
     'user'       : os.environ.get('MYSQLUSER', 'root'),
