@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Feedback Corner — Library LMS</title>
-  <link rel="stylesheet" href="/Library_Management_System/frontend/css/style.css">
+  <link rel="stylesheet" href="/frontend/css/style.css">
   <style>
     .feedback-form { max-width: 620px; }
     .star-row { display:flex; gap:6px; flex-direction:row-reverse; justify-content:flex-end; margin-bottom:4px; }
@@ -34,16 +34,16 @@
     <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/dashboard.html">Dashboard</a>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/books.html">Browse Books</a>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/my-books.html">My Books</a>
+      <a class="nav-item" href="/frontend/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/frontend/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/frontend/student/my-books.html">My Books</a>
       <div class="nav-section">Services</div>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/membership.html">Membership Card</a>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/events.html">Events</a>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
-      <a class="nav-item active" href="/Library_Management_System/frontend/student/feedback.html">Feedback Corner</a>
+      <a class="nav-item" href="/frontend/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/frontend/student/events.html">Events</a>
+      <a class="nav-item" href="/frontend/student/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item active" href="/frontend/student/feedback.html">Feedback Corner</a>
       <div class="nav-section">Account</div>
-      <a class="nav-item" href="/Library_Management_System/frontend/student/profile.html">Profile</a>
+      <a class="nav-item" href="/frontend/student/profile.html">Profile</a>
     </nav>
     <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
   </aside>
@@ -104,7 +104,7 @@
   </div>
 </div>
 
-<script src="/Library_Management_System/frontend/js/script.js"></script>
+<script src="/frontend/js/script.js"></script>
 <script>
   if (!requireAuth('student')) throw '';
   document.getElementById('student-name').textContent = getUser()?.name || '';
@@ -179,5 +179,6 @@
 </script>
 </body>
 </html>
+
 
 
