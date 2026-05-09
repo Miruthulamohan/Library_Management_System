@@ -2,14 +2,15 @@
 import datetime
 import mysql.connector
 from mysql.connector import Error
-
+import os
 DB_CONFIG = {
-    'host'    : 'localhost',
-    'user'    : 'root',
-    'password': '#miru*06',          # <- Enter your MySQL password here
-    'database': 'library_db',
-    'charset' : 'utf8mb4',
-    'autocommit': True
+    'host'       : os.environ.get('MYSQLHOST', 'localhost'),
+    'user'       : os.environ.get('MYSQLUSER', 'root'),
+    'password'   : os.environ.get('MYSQLPASSWORD', '#miru*06'),
+    'database'   : os.environ.get('MYSQLDATABASE', 'library_db'),
+    'port'       : int(os.environ.get('MYSQLPORT', 3306)),
+    'charset'    : 'utf8mb4',
+    'autocommit' : True
 }
 
 def get_connection():
