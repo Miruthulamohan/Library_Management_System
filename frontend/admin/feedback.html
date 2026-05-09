@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Student Feedback — Admin LMS</title>
-  <link rel="stylesheet" href="/frontend/css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     .feedback-card { border-left:4px solid #4f46e5; margin-bottom:14px; position:relative; }
     .feedback-card.unread { border-left-color:#f59e0b; background:#fffbeb; }
@@ -33,23 +33,23 @@
     <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Admin Panel</div></div></div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <a class="nav-item" href="/frontend/admin/dashboard.html">Dashboard</a>
-      <a class="nav-item" href="/frontend/admin/books.html">Books</a>
+      <a class="nav-item" href="/admin/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/admin/books.html">Books</a>
       <div class="nav-section">Issue / Return</div>
-      <a class="nav-item" href="/frontend/admin/issue.html">Issue Book</a>
-      <a class="nav-item" href="/frontend/admin/return.html">Return Book</a>
-      <a class="nav-item" href="/frontend/admin/overdue.html">Overdue</a>
+      <a class="nav-item" href="/admin/issue.html">Issue Book</a>
+      <a class="nav-item" href="/admin/return.html">Return Book</a>
+      <a class="nav-item" href="/admin/overdue.html">Overdue</a>
       <div class="nav-section">Students</div>
-      <a class="nav-item" href="/frontend/admin/students.html">Students</a>
-      <a class="nav-item" href="/frontend/admin/who-is-in.html">Who Is In</a>
-      <a class="nav-item active" href="/frontend/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/admin/students.html">Students</a>
+      <a class="nav-item" href="/admin/who-is-in.html">Who Is In</a>
+      <a class="nav-item active" href="/admin/feedback.html">Feedback Corner <span class="notif-badge" id="fb-badge" style="display:none">0</span></a>
       <div class="nav-section">Membership</div>
-      <a class="nav-item" href="/frontend/admin/members.html">Members</a>
+      <a class="nav-item" href="/admin/members.html">Members</a>
       <div class="nav-section">Communication</div>
-      <a class="nav-item" href="/frontend/admin/events.html">Events</a>
-      <a class="nav-item" href="/frontend/admin/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
+      <a class="nav-item" href="/admin/events.html">Events</a>
+      <a class="nav-item" href="/admin/notifications.html">Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span></a>
       <div class="nav-section">Settings</div>
-      <a class="nav-item" href="/frontend/admin/profile.html">Profile</a>
+      <a class="nav-item" href="/admin/profile.html">Profile</a>
     </nav>
     <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
   </aside>
@@ -106,7 +106,7 @@
   </div>
 </div>
 
-<script src="/frontend/js/script.js"></script>
+<script src="/js/script.js"></script>
 <script>
   if (!requireAuth('admin')) throw '';
 
@@ -231,6 +231,7 @@
 </script>
 </body>
 </html>
+
 
 
 

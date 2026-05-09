@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Dashboard — Library LMS</title><link rel="stylesheet" href="/frontend/css/style.css"><link rel="manifest" href="/frontend/manifest.json"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Dashboard — Library LMS</title><link rel="stylesheet" href="/css/style.css"><link rel="manifest" href="/manifest.json"></head>
 <body>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand"><div class="logo">LMS</div><div><div class="brand-name">Library LMS</div><div class="brand-sub">Student Portal</div></div></div>
     <nav class="sidebar-nav">
       <div class="nav-section">Main</div>
-      <a class="nav-item active" href="/frontend/student/dashboard.html">Dashboard</a>
-      <a class="nav-item" href="/frontend/student/books.html">Browse Books</a>
-      <a class="nav-item" href="/frontend/student/my-books.html">My Books</a>
+      <a class="nav-item active" href="/student/dashboard.html">Dashboard</a>
+      <a class="nav-item" href="/student/books.html">Browse Books</a>
+      <a class="nav-item" href="/student/my-books.html">My Books</a>
       <div class="nav-section">Services</div>
-      <a class="nav-item" href="/frontend/student/membership.html">Membership Card</a>
-      <a class="nav-item" href="/frontend/student/events.html">Events</a>
-      <a class="nav-item" href="/frontend/student/notifications.html">
+      <a class="nav-item" href="/student/membership.html">Membership Card</a>
+      <a class="nav-item" href="/student/events.html">Events</a>
+      <a class="nav-item" href="/student/notifications.html">
         Notifications <span class="notif-badge" id="notif-badge" style="display:none">0</span>
       </a>
-      <a class="nav-item" href="/frontend/student/feedback.html">Feedback Corner</a>
+      <a class="nav-item" href="/student/feedback.html">Feedback Corner</a>
       <div class="nav-section">Account</div>
-      <a class="nav-item" href="/frontend/student/profile.html">Profile</a>
+      <a class="nav-item" href="/student/profile.html">Profile</a>
     </nav>
     <div class="sidebar-footer"><div class="nav-item" onclick="logout()">Logout</div></div>
   </aside>
@@ -35,7 +35,7 @@
         <div class="stat-card"><div class="stat-label">Pending Fine</div><div class="stat-val" id="s-fine" style="color:#f59e0b">—</div></div>
       </div>
       <div class="card">
-        <div class="card-header">My Current Books <a href="/frontend/student/my-books.html" class="btn btn-outline btn-sm">View All</a></div>
+        <div class="card-header">My Current Books <a href="/student/my-books.html" class="btn btn-outline btn-sm">View All</a></div>
         <div class="table-wrap">
           <table>
             <thead><tr><th>Book</th><th>Issued</th><th>Due Date</th><th>Status</th></tr></thead>
@@ -60,7 +60,7 @@
   <span>Install Library App on your phone</span>
   <div style="display:flex;gap:8px"><button class="btn btn-primary btn-sm" onclick="installPWA()">Install</button><button class="btn btn-ghost btn-sm" style="color:#fff" onclick="document.getElementById('install-bar').classList.remove('show')">Later</button></div>
 </div>
-<script src="/frontend/js/script.js"></script>
+<script src="/js/script.js"></script>
 <script>
   if (!requireAuth('student')) throw '';
   document.getElementById('student-name').textContent = getUser()?.name || '';
@@ -130,6 +130,7 @@
 </script>
 </body>
 </html>
+
 
 
 
